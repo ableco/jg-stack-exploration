@@ -10,10 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_07_21_224901) do
+ActiveRecord::Schema.define(version: 2020_07_22_163826) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "auth_tokens", force: :cascade do |t|
+    t.string "token", null: false
+    t.datetime "expires_at", null: false
+    t.bigint "user_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["user_id"], name: "index_auth_tokens_on_user_id"
+  end
 
   create_table "chosen_pokemons", force: :cascade do |t|
     t.bigint "pokemon_id", null: false
@@ -39,6 +48,7 @@ ActiveRecord::Schema.define(version: 2020_07_21_224901) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
+  add_foreign_key "auth_tokens", "users"
   add_foreign_key "chosen_pokemons", "pokemons"
   add_foreign_key "chosen_pokemons", "users"
 end

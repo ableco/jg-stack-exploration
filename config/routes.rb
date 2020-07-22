@@ -7,5 +7,6 @@ Rails.application.routes.draw do
   scope ApplicationResource.endpoint_namespace, defaults: { format: :jsonapi } do
     resources :pokemons, only: [:index, :show]
     resources :chosen_pokemons, only: [:index, :create, :destroy]
+    resources :auth_tokens, only: [:create, :destroy]
   end
 end

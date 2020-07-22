@@ -9,6 +9,7 @@ technologies and how they behave together.
 
 - Login
 - Logout
+- List of pokemons with an option to add them to your current team
 - Sticky navbar always displaying your current team (max 6)
 - Each pokemon should have its own page
 
