@@ -1,24 +1,30 @@
-# README
+# Stack Test App
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+## Overall
 
-Things you may want to cover:
+This is a Pokemon Team Creator (one team of 6 pokemons) with many features to test some
+technologies and how they behave together.
 
-* Ruby version
+### Features
 
-* System dependencies
+- Login
+- Logout
+- Sticky navbar always displaying your current team (max 6)
+- Each pokemon should have its own page
 
-* Configuration
+### Basic Tech (not testing here)
 
-* Database creation
+- rails
+- webpack
+- yarn
+- react
+- react-router
+- tailwind
 
-* Database initialization
+### Setup Process
 
-* How to run the test suite
+The setup process for this app is outlined here: [docs/setup.md].
 
-* Services (job queues, cache servers, search engines, etc.)
+## Tech to test
 
-* Deployment instructions
-
-* ...
+- Graphiti
