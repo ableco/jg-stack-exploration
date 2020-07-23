@@ -80,10 +80,14 @@ function LoginPage() {
         )}
 
         <Field label="Username:">
-          <TextInput type="text" ref={usernameRef} />
+          <TextInput type="text" ref={usernameRef} autoComplete="username" />
         </Field>
         <Field label="Password:">
-          <TextInput type="password" ref={passwordRef} />
+          <TextInput
+            type="password"
+            ref={passwordRef}
+            autoComplete="current-password"
+          />
         </Field>
         <Button type="submit">Enter</Button>
       </form>

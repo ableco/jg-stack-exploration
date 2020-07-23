@@ -35,34 +35,42 @@ function AuthContextProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [authState, authDispatch] = useReducer(authReducer, INITIAL_STATE);
 
-  const loadCurrentUser = useCallback(async () => {
-    setLoading(true);
-    const token = Cookies.get("AUTH_TOKEN");
-    if (token) {
-      const response = await fetch("/api/users/current", {
-        method: "GET",
-        headers: {
-          Accept: "application/vnd.api+json",
-          "Content-Type": "application/vnd.api+json",
-          Authorization: `Bearer token=${token}`,
-        },
-      });
-      if (response.status === 401) {
-        Cookies.remove("AUTH_TOKEN");
-        authDispatch({ type: "UNAUTHENTICATED" });
-      } else {
-        const {
-          data: { id, attributes },
-        } = await response.json();
-        authDispatch({
-          type: "AUTHENTICATED",
-          currentUser: { id, ...attributes },
-          currentAuthToken: token,
-        });
+  const loadCurrentUser = useCallback(
+    async ({ updateLoader = true } = {}) => {
+      if (updateLoader) {
+        setLoading(true);
       }
-    }
-    setLoading(false);
-  }, [authDispatch]);
+      const token = Cookies.get("AUTH_TOKEN");
+      if (token) {
+        const response = await fetch("/api/users/current", {
+          method: "GET",
+          headers: {
+            Accept: "application/vnd.api+json",
+            "Content-Type": "application/vnd.api+json",
+            Authorization: `Bearer token=${token}`,
+          },
+        });
+        if (response.status === 401) {
+          Cookies.remove("AUTH_TOKEN");
+          authDispatch({ type: "UNAUTHENTICATED" });
+        } else {
+          const {
+            data: { id, attributes },
+          } = await response.json();
+
+          authDispatch({
+            type: "AUTHENTICATED",
+            currentUser: { id, ...attributes },
+            currentAuthToken: token,
+          });
+        }
+      }
+      if (updateLoader) {
+        setLoading(false);
+      }
+    },
+    [authDispatch]
+  );
 
   const logout = useCallback(async () => {
     const response = await fetch("/api/auth_tokens/current", {
@@ -105,7 +113,7 @@ function AuthContextProvider({ children }) {
         } = await response.json();
 
         Cookies.set("AUTH_TOKEN", token, { expires: new Date(expires_at) });
-        await loadCurrentUser();
+        await loadCurrentUser({ updateLoader: false });
         return true;
       }
       return false;

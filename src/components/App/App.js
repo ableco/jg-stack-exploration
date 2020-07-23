@@ -24,7 +24,9 @@ function AuthenticatedApp() {
 function UnauthenticatedApp() {
   return (
     <Routes>
-      <Route path="*" element={<LoginPage />} />
+      <Route path="/" element={<LoginPage />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }
@@ -38,7 +40,9 @@ function App() {
   return (
     <AuthContextProvider>
       <BrowserRouter>
-        <AuthApp />
+        <Routes>
+          <Route path="*" element={<AuthApp />} />
+        </Routes>
       </BrowserRouter>
     </AuthContextProvider>
   );
