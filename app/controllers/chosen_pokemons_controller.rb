@@ -1,4 +1,8 @@
 class ChosenPokemonsController < ApplicationController
+  include Authenticatable
+
+  before_action :authenticate!
+
   def index
     chosen_pokemons = ChosenPokemonResource.all(params)
     render jsonapi: chosen_pokemons

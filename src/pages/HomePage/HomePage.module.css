@@ -1,0 +1,7 @@
+.grayscale {
+  filter: grayscale();
+}
+
+.pokemon:hover .listedPokemonImage {
+  filter: none;
+}

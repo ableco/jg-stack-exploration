@@ -8,7 +8,8 @@ import React, {
 import clsx from "clsx";
 import { useNavigate } from "react-router-dom";
 import Button from "components/Button";
-import AuthContext from "../../AuthContext";
+import Background from "components/Background";
+import AuthContext from "AuthContext";
 
 function LabelText({ children }) {
   return <span className="inline-block w-1/3">{children}</span>;
@@ -64,7 +65,7 @@ function LoginPage() {
   );
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-indigo-800">
+    <Background className="flex flex-col items-center justify-center">
       <h1 className="font-sans text-4xl text-gray-100">Log In</h1>
 
       <form
@@ -91,7 +92,7 @@ function LoginPage() {
         </Field>
         <Button type="submit">Enter</Button>
       </form>
-    </div>
+    </Background>
   );
 }
 

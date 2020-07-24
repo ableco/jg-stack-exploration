@@ -2,8 +2,11 @@ import React from "react";
 import clsx from "clsx";
 
 const variantClasses = {
-  primary: "text-white bg-yellow-700 hover:bg-yellow-800 focus:bg-yellow-800",
-  secondary: "text-white bg-red-800 hover:bg-red-900 focus:bg-red-900",
+  primary:
+    "rounded-md text-white bg-yellow-700 hover:bg-yellow-800 focus:bg-yellow-800",
+  secondary:
+    "rounded-md text-white bg-red-800 hover:bg-red-900 focus:bg-red-900",
+  barebones: "text-white",
 };
 
 function Button({
@@ -15,7 +18,7 @@ function Button({
   return (
     <button
       className={clsx(
-        "p-2 rounded-md focus:outline-none",
+        "p-2 focus:outline-none text-center",
         variantClasses[variant] || "",
         className
       )}

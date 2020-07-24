@@ -1,16 +1,9 @@
 import React, { useContext } from "react";
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import LoginPage from "pages/LoginPage";
 import HomePage from "pages/HomePage";
 import AuthContext, { AuthContextProvider } from "AuthContext";
-
-const NotFoundPage = () => {
-  return (
-    <h1>
-      NOT FOUND. <Link to="/">Go home?</Link>
-    </h1>
-  );
-};
+import NotFoundPage from "pages/NotFoundPage";
 
 function AuthenticatedApp() {
   return (

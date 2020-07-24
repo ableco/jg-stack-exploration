@@ -1,24 +1,24 @@
-import React, { useContext } from "react";
-import Button from "components/Button";
-import AuthContext from "AuthContext";
-import { useNavigate } from "react-router-dom";
+import React, { useRef, useLayoutEffect } from "react";
+import Background from "components/Background";
+import PokemonsList from "./PokemonsList";
+import Navbar from "./Navbar";
 
 function HomePage() {
-  const { logout } = useContext(AuthContext);
-  const navigate = useNavigate();
+  const navbarRef = useRef(null);
+  const spacerRef = useRef(null);
 
-  const handleLogout = async () => {
-    await logout();
-    navigate("/login");
-  };
+  useLayoutEffect(() => {
+    spacerRef.current.style.height = `${navbarRef.current.offsetHeight}px`;
+  }, []);
 
   return (
-    <>
-      <div>Home Page</div>
-      <Button variant="secondary" onClick={handleLogout}>
-        Logout
-      </Button>
-    </>
+    <Background>
+      <Navbar ref={navbarRef} />
+      <div ref={spacerRef} />
+      <div className="p-6">
+        <PokemonsList />
+      </div>
+    </Background>
   );
 }
 

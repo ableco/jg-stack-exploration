@@ -6,6 +6,8 @@ import React, {
   useEffect,
 } from "react";
 import Cookies from "js-cookie";
+import Background from "components/Background";
+import LoadingBox from "components/LoadingBox";
 
 const AuthContext = createContext({
   currentUser: null,
@@ -127,7 +129,13 @@ function AuthContextProvider({ children }) {
 
   return (
     <AuthContext.Provider value={{ ...authState, logout, login }}>
-      {loading ? <div>Loading...</div> : children}
+      {loading ? (
+        <Background>
+          <LoadingBox />
+        </Background>
+      ) : (
+        children
+      )}
     </AuthContext.Provider>
   );
 }
