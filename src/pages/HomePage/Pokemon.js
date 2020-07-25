@@ -6,13 +6,13 @@ import PokemonImage from "./PokemonImage";
 import useFetchApi from "useFetchApi";
 import { mutate } from "swr";
 
-function Pokemon({ pokemon }) {
+function Pokemon({ pokemon, chosenPokemon }) {
   const fetchApi = useFetchApi();
 
   const borderStyles =
     "border-2 border-solid border-opacity-50 border-indigo-500 rounded-md";
 
-  const handleClick = async () => {
+  const choosePokemon = async () => {
     await fetchApi("/api/chosen_pokemons", {
       method: "POST",
       body: {
@@ -22,7 +22,14 @@ function Pokemon({ pokemon }) {
         },
       },
     });
-    mutate("/api/pokemons?page[number]=1&page[size]=151");
+    mutate("/api/chosen_pokemons?include=pokemon");
+  };
+
+  const removePokemon = async () => {
+    await fetchApi(`/api/chosen_pokemons/${chosenPokemon.id}`, {
+      method: "DELETE",
+    });
+    mutate("/api/chosen_pokemons?include=pokemon");
   };
 
   return (
@@ -31,15 +38,18 @@ function Pokemon({ pokemon }) {
     >
       <PokemonImage
         pokemon={pokemon}
-        grayscale
+        grayscale={!chosenPokemon}
         className={styles.listedPokemonImage}
       />
       <Button
         variant="barebones"
-        className="w-full bg-blue-600 hover:bg-blue-700"
-        onClick={handleClick}
+        className={clsx("w-full", {
+          "bg-blue-600 hover:bg-blue-700": !chosenPokemon,
+          "bg-red-800 hover:bg-red-900": chosenPokemon,
+        })}
+        onClick={chosenPokemon ? removePokemon : choosePokemon}
       >
-        Choose!
+        {chosenPokemon ? "Remove" : "Choose!"}
       </Button>
     </div>
   );

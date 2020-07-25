@@ -24,7 +24,7 @@ function useFetchApi() {
         fetchOptions.body = JSON.stringify(options.body);
       }
 
-      return fetch(url, fetchOptions);
+      return fetch(url, fetchOptions).then((response) => response.json());
     },
     [currentAuthToken]
   );

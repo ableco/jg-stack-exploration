@@ -31,10 +31,9 @@ function AuthApp() {
   const { currentUser } = useContext(AuthContext);
   const fetchApi = useFetchApi();
 
-  const fetcher = useCallback(
-    (url) => fetchApi(url, { method: "GET" }).then((res) => res.json()),
-    [fetchApi]
-  );
+  const fetcher = useCallback((url) => fetchApi(url, { method: "GET" }), [
+    fetchApi,
+  ]);
 
   return (
     <SWRConfig value={{ suspense: true, fetcher }}>

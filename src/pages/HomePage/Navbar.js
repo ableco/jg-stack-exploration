@@ -1,52 +1,32 @@
-import React, {
-  forwardRef,
-  useContext,
-  useEffect,
-  useCallback,
-  useState,
-} from "react";
+import React, { forwardRef, useContext, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "components/Button";
 import AuthContext from "AuthContext";
 import PokemonImage from "./PokemonImage";
+import useSWR from "swr";
 
 function Navbar(_props, ref) {
-  const { logout, currentAuthToken } = useContext(AuthContext);
-
-  const [chosenPokemons, setChosenPokemons] = useState([]);
+  const { logout } = useContext(AuthContext);
 
   const navigate = useNavigate();
+  const {
+    data: { data: chosenPokemonItems, included: includedPokemons },
+  } = useSWR("/api/chosen_pokemons?include=pokemon");
 
-  const loadChosenPokemons = useCallback(async () => {
-    const response = await fetch("/api/chosen_pokemons?include=pokemon", {
-      method: "GET",
-      headers: {
-        Accept: "application/vnd.api+json",
-        "Content-Type": "application/vnd.api+json",
-        Authorization: `Bearer token=${currentAuthToken}`,
-      },
+  const chosenPokemons = useMemo(() => {
+    return chosenPokemonItems.map((chosenPokemon) => {
+      const pokemon = includedPokemons.find(
+        (item) =>
+          item.type === "pokemons" &&
+          item.id === chosenPokemon.attributes.pokemon_id.toString()
+      );
+
+      return {
+        id: chosenPokemon.id,
+        pokemon,
+      };
     });
-    const { data, included } = await response.json();
-
-    setChosenPokemons(
-      data.map((chosenPokemon) => {
-        const pokemon = included.find(
-          (item) =>
-            item.type === "pokemons" &&
-            item.id === chosenPokemon.attributes.pokemon_id.toString()
-        );
-
-        return {
-          id: chosenPokemon.id,
-          pokemon,
-        };
-      })
-    );
-  }, [currentAuthToken]);
-
-  useEffect(() => {
-    loadChosenPokemons();
-  }, [loadChosenPokemons]);
+  }, [chosenPokemonItems, includedPokemons]);
 
   const handleLogout = async () => {
     await logout();
