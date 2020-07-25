@@ -1,31 +1,28 @@
-import React, { useContext } from "react";
+import React from "react";
 import clsx from "clsx";
 import Button from "components/Button";
-import AuthContext from "AuthContext";
 import styles from "./HomePage.module.css";
 import PokemonImage from "./PokemonImage";
+import useFetchApi from "useFetchApi";
+import { mutate } from "swr";
 
 function Pokemon({ pokemon }) {
-  const { currentAuthToken } = useContext(AuthContext);
+  const fetchApi = useFetchApi();
 
   const borderStyles =
     "border-2 border-solid border-opacity-50 border-indigo-500 rounded-md";
 
   const handleClick = async () => {
-    await fetch("/api/chosen_pokemons", {
+    await fetchApi("/api/chosen_pokemons", {
       method: "POST",
-      headers: {
-        Accept: "application/vnd.api+json",
-        "Content-Type": "application/vnd.api+json",
-        Authorization: `Bearer token=${currentAuthToken}`,
-      },
-      body: JSON.stringify({
+      body: {
         data: {
           type: "chosen_pokemons",
           attributes: { pokemon_id: pokemon.id },
         },
-      }),
+      },
     });
+    mutate("/api/pokemons?page[number]=1&page[size]=151");
   };
 
   return (

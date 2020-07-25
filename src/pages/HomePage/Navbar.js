@@ -58,7 +58,11 @@ function Navbar(_props, ref) {
       <div className="flex">
         <div className="flex">
           {chosenPokemons.map((chosenPokemon) => (
-            <PokemonImage pokemon={chosenPokemon.pokemon} size={40} />
+            <PokemonImage
+              key={chosenPokemon.id}
+              pokemon={chosenPokemon.pokemon}
+              size={40}
+            />
           ))}
         </div>
         <Button variant="secondary" onClick={handleLogout} className="ml-auto">

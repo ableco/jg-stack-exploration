@@ -1,9 +1,12 @@
-import React, { useContext } from "react";
+import React, { useContext, useCallback, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import LoginPage from "pages/LoginPage";
 import HomePage from "pages/HomePage";
 import AuthContext, { AuthContextProvider } from "AuthContext";
 import NotFoundPage from "pages/NotFoundPage";
+import { SWRConfig } from "swr";
+import useFetchApi from "useFetchApi";
+import LoadingBox from "components/LoadingBox";
 
 function AuthenticatedApp() {
   return (
@@ -26,7 +29,20 @@ function UnauthenticatedApp() {
 
 function AuthApp() {
   const { currentUser } = useContext(AuthContext);
-  return currentUser ? <AuthenticatedApp /> : <UnauthenticatedApp />;
+  const fetchApi = useFetchApi();
+
+  const fetcher = useCallback(
+    (url) => fetchApi(url, { method: "GET" }).then((res) => res.json()),
+    [fetchApi]
+  );
+
+  return (
+    <SWRConfig value={{ suspense: true, fetcher }}>
+      <Suspense fallback={<LoadingBox />}>
+        {currentUser ? <AuthenticatedApp /> : <UnauthenticatedApp />}
+      </Suspense>
+    </SWRConfig>
+  );
 }
 
 function App() {
