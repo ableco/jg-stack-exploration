@@ -8,6 +8,7 @@ import React, {
 import Cookies from "js-cookie";
 import Background from "components/Background";
 import LoadingBox from "components/LoadingBox";
+import useFetchApi from "useFetchApi";
 
 const AuthContext = createContext({
   currentUser: null,
@@ -36,6 +37,7 @@ function authReducer(state = INITIAL_STATE, action) {
 function AuthContextProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [authState, authDispatch] = useReducer(authReducer, INITIAL_STATE);
+  const fetchApi = useFetchApi();
 
   const loadCurrentUser = useCallback(
     async ({ updateLoader = true } = {}) => {
@@ -44,13 +46,8 @@ function AuthContextProvider({ children }) {
       }
       const token = Cookies.get("AUTH_TOKEN");
       if (token) {
-        const response = await fetch("/api/users/current", {
-          method: "GET",
-          headers: {
-            Accept: "application/vnd.api+json",
-            "Content-Type": "application/vnd.api+json",
-            Authorization: `Bearer token=${token}`,
-          },
+        const response = await fetchApi("/api/users/current", {
+          returnResponse: true,
         });
         if (response.status === 401) {
           Cookies.remove("AUTH_TOKEN");
@@ -71,33 +68,25 @@ function AuthContextProvider({ children }) {
         setLoading(false);
       }
     },
-    [authDispatch]
+    [fetchApi, authDispatch]
   );
 
   const logout = useCallback(async () => {
-    const response = await fetch("/api/auth_tokens/current", {
+    const response = await fetchApi("/api/auth_tokens/current", {
       method: "DELETE",
-      headers: {
-        Accept: "application/vnd.api+json",
-        "Content-Type": "application/vnd.api+json",
-        Authorization: `Bearer token=${authState.currentAuthToken}`,
-      },
+      returnResponse: true,
     });
     if (response.status === 204) {
       Cookies.remove("AUTH_TOKEN");
       authDispatch({ type: "UNAUTHENTICATED" });
     }
-  }, [authState.currentAuthToken, authDispatch]);
+  }, [fetchApi, authDispatch]);
 
   const login = useCallback(
     async (username, password) => {
-      const response = await fetch("/api/auth_tokens", {
+      const response = await fetchApi("/api/auth_tokens", {
         method: "POST",
-        headers: {
-          Accept: "application/vnd.api+json",
-          "Content-Type": "application/vnd.api+json",
-        },
-        body: JSON.stringify({
+        body: {
           data: {
             type: "authTokens",
             attributes: {
@@ -105,7 +94,8 @@ function AuthContextProvider({ children }) {
               password,
             },
           },
-        }),
+        },
+        returnResponse: true,
       });
       if (response.status === 201) {
         const {
@@ -120,7 +110,7 @@ function AuthContextProvider({ children }) {
       }
       return false;
     },
-    [loadCurrentUser]
+    [fetchApi, loadCurrentUser]
   );
 
   useEffect(() => {

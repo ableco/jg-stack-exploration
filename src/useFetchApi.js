@@ -6,6 +6,7 @@ function useFetchApi() {
 
   return useCallback(
     (url, options = {}) => {
+      let returnResponse = false;
       const fetchOptions = {
         headers: {
           Accept: "application/vnd.api+json",
@@ -13,6 +14,11 @@ function useFetchApi() {
         },
         ...options,
       };
+
+      if (fetchOptions.returnResponse) {
+        returnResponse = true;
+        delete fetchOptions.returnResponse;
+      }
 
       if (currentAuthToken) {
         fetchOptions.headers[
@@ -24,7 +30,9 @@ function useFetchApi() {
         fetchOptions.body = JSON.stringify(options.body);
       }
 
-      return fetch(url, fetchOptions).then((response) => response.json());
+      return fetch(url, fetchOptions).then((response) =>
+        returnResponse ? response : response.json()
+      );
     },
     [currentAuthToken]
   );
