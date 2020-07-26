@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import Background from "components/Background";
 import Page from "components/Page";
-import AuthContext from "AuthContext";
+import AuthContext from "components/AuthContext";
 
 function NotFoundPage() {
   const { currentUser } = useContext(AuthContext);

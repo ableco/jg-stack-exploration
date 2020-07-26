@@ -9,7 +9,7 @@ import clsx from "clsx";
 import { useNavigate } from "react-router-dom";
 import Button from "components/Button";
 import Background from "components/Background";
-import AuthContext from "AuthContext";
+import AuthContext from "components/AuthContext";
 
 function LabelText({ children }) {
   return <span className="inline-block w-1/3">{children}</span>;

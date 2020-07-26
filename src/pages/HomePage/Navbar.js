@@ -1,32 +1,29 @@
-import React, { forwardRef, useContext, useMemo } from "react";
+import React, { forwardRef, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "components/Button";
-import AuthContext from "AuthContext";
+import AuthContext from "components/AuthContext";
 import PokemonImage from "./PokemonImage";
 import useSWR from "swr";
+import { gql } from "lib/useGraphqlClient";
+
+const CHOSEN_POKEMONS_QUERY = gql`
+  {
+    chosenPokemons {
+      id
+      name
+      imageUrl
+      number
+    }
+  }
+`;
 
 function Navbar(_props, ref) {
   const { logout } = useContext(AuthContext);
 
   const navigate = useNavigate();
   const {
-    data: { data: chosenPokemonItems, included: includedPokemons },
-  } = useSWR("/api/chosen_pokemons?include=pokemon");
-
-  const chosenPokemons = useMemo(() => {
-    return chosenPokemonItems.map((chosenPokemon) => {
-      const pokemon = includedPokemons.find(
-        (item) =>
-          item.type === "pokemons" &&
-          item.id === chosenPokemon.attributes.pokemon_id.toString()
-      );
-
-      return {
-        id: chosenPokemon.id,
-        pokemon,
-      };
-    });
-  }, [chosenPokemonItems, includedPokemons]);
+    data: { chosenPokemons },
+  } = useSWR(CHOSEN_POKEMONS_QUERY);
 
   const handleLogout = async () => {
     await logout();
@@ -37,12 +34,8 @@ function Navbar(_props, ref) {
     <div className="fixed py-4 px-6 bg-white w-full z-50" ref={ref}>
       <div className="flex">
         <div className="flex">
-          {chosenPokemons.map((chosenPokemon) => (
-            <PokemonImage
-              key={chosenPokemon.id}
-              pokemon={chosenPokemon.pokemon}
-              size={40}
-            />
+          {chosenPokemons.map((pokemon) => (
+            <PokemonImage key={pokemon.id} pokemon={pokemon} size={40} />
           ))}
         </div>
         <Button variant="secondary" onClick={handleLogout} className="ml-auto">
@@ -54,3 +47,4 @@ function Navbar(_props, ref) {
 }
 
 export default forwardRef(Navbar);
+export { CHOSEN_POKEMONS_QUERY };

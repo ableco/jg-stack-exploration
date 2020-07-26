@@ -10,12 +10,12 @@ function PokemonImage({
 }) {
   return (
     <img
-      src={pokemon.attributes.image_url}
+      src={pokemon.imageUrl}
       className={clsx(className, {
         [styles.grayscale]: grayscale,
       })}
-      alt={pokemon.attributes.name}
-      title={pokemon.attributes.name}
+      alt={pokemon.name}
+      title={pokemon.name}
       height={size}
       width={size}
     />

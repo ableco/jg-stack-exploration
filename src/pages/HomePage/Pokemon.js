@@ -3,33 +3,47 @@ import clsx from "clsx";
 import Button from "components/Button";
 import styles from "./HomePage.module.css";
 import PokemonImage from "./PokemonImage";
-import useFetchApi from "useFetchApi";
 import { mutate } from "swr";
+import useGraphqlClient, { gql } from "lib/useGraphqlClient";
+import { CHOSEN_POKEMONS_QUERY } from "./Navbar";
+import { LIST_POKEMONS_QUERY } from "./PokemonsList";
 
-function Pokemon({ pokemon, chosenPokemon }) {
-  const fetchApi = useFetchApi();
+const ADD_POKEMON_MUTATION = gql`
+  mutation($pokemonId: ID!) {
+    addPokemon(input: { pokemonId: $pokemonId }) {
+      success
+    }
+  }
+`;
+
+const REMOVE_POKEMON_MUTATION = gql`
+  mutation($pokemonId: ID!) {
+    removePokemon(input: { pokemonId: $pokemonId }) {
+      success
+    }
+  }
+`;
+
+function Pokemon({ pokemon }) {
+  const graphqlClient = useGraphqlClient();
 
   const borderStyles =
     "border-2 border-solid border-opacity-50 border-indigo-500 rounded-md";
 
   const choosePokemon = async () => {
-    await fetchApi("/api/chosen_pokemons", {
-      method: "POST",
-      body: {
-        data: {
-          type: "chosen_pokemons",
-          attributes: { pokemon_id: pokemon.id },
-        },
-      },
+    await graphqlClient.request(ADD_POKEMON_MUTATION, {
+      pokemonId: pokemon.id,
     });
-    mutate("/api/chosen_pokemons?include=pokemon");
+    mutate(LIST_POKEMONS_QUERY);
+    mutate(CHOSEN_POKEMONS_QUERY);
   };
 
   const removePokemon = async () => {
-    await fetchApi(`/api/chosen_pokemons/${chosenPokemon.id}`, {
-      method: "DELETE",
+    await graphqlClient.request(REMOVE_POKEMON_MUTATION, {
+      pokemonId: pokemon.id,
     });
-    mutate("/api/chosen_pokemons?include=pokemon");
+    mutate(LIST_POKEMONS_QUERY);
+    mutate(CHOSEN_POKEMONS_QUERY);
   };
 
   return (
@@ -38,18 +52,18 @@ function Pokemon({ pokemon, chosenPokemon }) {
     >
       <PokemonImage
         pokemon={pokemon}
-        grayscale={!chosenPokemon}
+        grayscale={!pokemon.chosen}
         className={styles.listedPokemonImage}
       />
       <Button
         variant="barebones"
         className={clsx("w-full", {
-          "bg-blue-600 hover:bg-blue-700": !chosenPokemon,
-          "bg-red-800 hover:bg-red-900": chosenPokemon,
+          "bg-blue-600 hover:bg-blue-700": !pokemon.chosen,
+          "bg-red-800 hover:bg-red-900": pokemon.chosen,
         })}
-        onClick={chosenPokemon ? removePokemon : choosePokemon}
+        onClick={pokemon.chosen ? removePokemon : choosePokemon}
       >
-        {chosenPokemon ? "Remove" : "Choose!"}
+        {pokemon.chosen ? "Remove" : "Choose!"}
       </Button>
     </div>
   );

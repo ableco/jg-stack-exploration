@@ -8,7 +8,7 @@ import React, {
 import Cookies from "js-cookie";
 import Background from "components/Background";
 import LoadingBox from "components/LoadingBox";
-import useFetchApi from "useFetchApi";
+import useGraphqlClient, { gql } from "lib/useGraphqlClient";
 
 const AuthContext = createContext({
   currentUser: null,
@@ -34,10 +34,37 @@ function authReducer(state = INITIAL_STATE, action) {
   }
 }
 
+const LOAD_CURRENT_USER_QUERY = gql`
+  {
+    currentUser {
+      id
+      username
+    }
+  }
+`;
+
+const LOGIN_MUTATION = gql`
+  mutation($username: String!, $password: String!) {
+    login(input: { username: $username, password: $password }) {
+      authToken {
+        token
+      }
+    }
+  }
+`;
+
+const LOGOUT_MUTATION = gql`
+  mutation {
+    logout(input: {}) {
+      success
+    }
+  }
+`;
+
 function AuthContextProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [authState, authDispatch] = useReducer(authReducer, INITIAL_STATE);
-  const fetchApi = useFetchApi();
+  const graphqlClient = useGraphqlClient();
 
   const loadCurrentUser = useCallback(
     async ({ updateLoader = true } = {}) => {
@@ -46,71 +73,60 @@ function AuthContextProvider({ children }) {
       }
       const token = Cookies.get("AUTH_TOKEN");
       if (token) {
-        const response = await fetchApi("/api/users/current", {
-          returnResponse: true,
-        });
-        if (response.status === 401) {
-          Cookies.remove("AUTH_TOKEN");
-          authDispatch({ type: "UNAUTHENTICATED" });
-        } else {
-          const {
-            data: { id, attributes },
-          } = await response.json();
+        const { currentUser } = await graphqlClient.request(
+          LOAD_CURRENT_USER_QUERY
+        );
 
+        if (currentUser) {
           authDispatch({
             type: "AUTHENTICATED",
-            currentUser: { id, ...attributes },
+            currentUser,
             currentAuthToken: token,
           });
+        } else {
+          Cookies.remove("AUTH_TOKEN");
+          authDispatch({ type: "UNAUTHENTICATED" });
         }
       }
       if (updateLoader) {
         setLoading(false);
       }
     },
-    [fetchApi, authDispatch]
+    [graphqlClient, authDispatch]
   );
 
   const logout = useCallback(async () => {
-    const response = await fetchApi("/api/auth_tokens/current", {
-      method: "DELETE",
-      returnResponse: true,
-    });
-    if (response.status === 204) {
+    const {
+      logout: { success },
+    } = await graphqlClient.request(LOGOUT_MUTATION);
+
+    if (success) {
       Cookies.remove("AUTH_TOKEN");
       authDispatch({ type: "UNAUTHENTICATED" });
     }
-  }, [fetchApi, authDispatch]);
+  }, [graphqlClient, authDispatch]);
 
   const login = useCallback(
     async (username, password) => {
-      const response = await fetchApi("/api/auth_tokens", {
-        method: "POST",
-        body: {
-          data: {
-            type: "authTokens",
-            attributes: {
-              username,
-              password,
-            },
-          },
-        },
-        returnResponse: true,
-      });
-      if (response.status === 201) {
-        const {
-          data: {
-            attributes: { token, expires_at },
-          },
-        } = await response.json();
+      try {
+        const { login } = await graphqlClient.request(LOGIN_MUTATION, {
+          username,
+          password,
+        });
+        const { token, expiresAt } = login.authToken;
 
-        Cookies.set("AUTH_TOKEN", token, { expires: new Date(expires_at) });
+        Cookies.set("AUTH_TOKEN", token, { expires: new Date(expiresAt) });
         await loadCurrentUser({ updateLoader: false });
         return true;
+      } catch (error) {
+        if (error.message.startsWith("User not found")) {
+          return false;
+        } else {
+          throw error;
+        }
       }
-      return false;
     },
-    [fetchApi, loadCurrentUser]
+    [graphqlClient, loadCurrentUser]
   );
 
   useEffect(() => {

@@ -2,11 +2,11 @@ import React, { useContext, useCallback, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import LoginPage from "pages/LoginPage";
 import HomePage from "pages/HomePage";
-import AuthContext, { AuthContextProvider } from "AuthContext";
+import AuthContext, { AuthContextProvider } from "components/AuthContext";
 import NotFoundPage from "pages/NotFoundPage";
 import { SWRConfig } from "swr";
-import useFetchApi from "useFetchApi";
 import LoadingBox from "components/LoadingBox";
+import useGraphqlClient from "lib/useGraphqlClient";
 
 function AuthenticatedApp() {
   return (
@@ -29,10 +29,10 @@ function UnauthenticatedApp() {
 
 function AuthApp() {
   const { currentUser } = useContext(AuthContext);
-  const fetchApi = useFetchApi();
 
-  const fetcher = useCallback((url) => fetchApi(url, { method: "GET" }), [
-    fetchApi,
+  const graphqlClient = useGraphqlClient();
+  const fetcher = useCallback((...args) => graphqlClient.request(...args), [
+    graphqlClient,
   ]);
 
   return (
