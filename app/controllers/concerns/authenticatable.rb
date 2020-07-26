@@ -2,28 +2,11 @@ module Authenticatable
   extend ActiveSupport::Concern
   include ActionController::HttpAuthentication::Token::ControllerMethods
 
-  class UnauthorizedError < StandardError
-  end
-
   included do
     before_action :load_current_user
   end
 
   attr_reader :current_auth_token, :current_user
-
-  def context
-    { current_user: current_user }
-  end
-
-  def authenticate!
-    raise UnauthorizedError unless current_user
-  end
-
-  def login!(username, password)
-    self.current_user = User.find_by(username: username)&.authenticate(password)
-    self.current_auth_token = current_user.auth_tokens.create if current_user.present?
-    authenticate!
-  end
 
   def load_current_user
     authenticate_with_cookie

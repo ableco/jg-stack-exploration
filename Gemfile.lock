@@ -98,6 +98,9 @@ GEM
       rake
     globalid (0.4.2)
       activesupport (>= 4.2.0)
+    graphiql-rails (1.7.0)
+      railties
+      sprockets-rails
     graphiti (1.2.20)
       activesupport (>= 4.1)
       concurrent-ruby (~> 1.0)
@@ -111,6 +114,7 @@ GEM
       rescue_registry (~> 0.2.1)
     graphiti_errors (1.1.2)
       jsonapi-serializable (~> 0.1)
+    graphql (1.11.1)
     http (4.4.1)
       addressable (~> 2.3)
       http-cookie (~> 1.0)
@@ -245,8 +249,10 @@ DEPENDENCIES
   bcrypt
   bootsnap (>= 1.4.2)
   byebug
+  graphiql-rails
   graphiti
   graphiti-rails
+  graphql
   http
   jbuilder (~> 2.7)
   kaminari
