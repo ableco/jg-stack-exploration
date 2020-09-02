@@ -1,4 +1,4 @@
-class StackTestSchema < GraphQL::Schema
+class StackIdeasSchema < GraphQL::Schema
   mutation(Types::MutationType)
   query(Types::QueryType)
 

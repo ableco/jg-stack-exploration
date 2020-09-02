@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_07_22_163826) do
+ActiveRecord::Schema.define(version: 2020_09_02_195438) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -24,21 +24,36 @@ ActiveRecord::Schema.define(version: 2020_07_22_163826) do
     t.index ["user_id"], name: "index_auth_tokens_on_user_id"
   end
 
-  create_table "chosen_pokemons", force: :cascade do |t|
-    t.bigint "pokemon_id", null: false
-    t.bigint "user_id", null: false
+  create_table "chores", force: :cascade do |t|
+    t.bigint "investment_id", null: false
+    t.string "missing_field", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["pokemon_id"], name: "index_chosen_pokemons_on_pokemon_id"
-    t.index ["user_id"], name: "index_chosen_pokemons_on_user_id"
+    t.index ["investment_id"], name: "index_chores_on_investment_id"
   end
 
-  create_table "pokemons", force: :cascade do |t|
-    t.string "number"
+  create_table "companies", force: :cascade do |t|
     t.string "name"
-    t.string "image_url"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "investments", force: :cascade do |t|
+    t.string "name"
+    t.decimal "invested"
+    t.string "optional_field"
+    t.date "expiration_date"
+    t.bigint "company_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["company_id"], name: "index_investments_on_company_id"
+  end
+
+  create_table "reminders", force: :cascade do |t|
+    t.bigint "investment_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["investment_id"], name: "index_reminders_on_investment_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -48,7 +63,18 @@ ActiveRecord::Schema.define(version: 2020_07_22_163826) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
+  create_table "valuations", force: :cascade do |t|
+    t.decimal "amount"
+    t.bigint "investment_id", null: false
+    t.date "date"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["investment_id"], name: "index_valuations_on_investment_id"
+  end
+
   add_foreign_key "auth_tokens", "users"
-  add_foreign_key "chosen_pokemons", "pokemons"
-  add_foreign_key "chosen_pokemons", "users"
+  add_foreign_key "chores", "investments"
+  add_foreign_key "investments", "companies"
+  add_foreign_key "reminders", "investments"
+  add_foreign_key "valuations", "investments"
 end

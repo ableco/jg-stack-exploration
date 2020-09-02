@@ -1,6 +1,5 @@
 import React from "react";
 import Background from "components/Background";
-import PokemonsList from "./PokemonsList";
 import Navbar from "./Navbar";
 
 function HomePage() {
@@ -8,9 +7,7 @@ function HomePage() {
     <Background>
       <Navbar />
       <div style={{ height: "72px" }} />
-      <div className="p-6">
-        <PokemonsList />
-      </div>
+      <div className="p-6"></div>
     </Background>
   );
 }

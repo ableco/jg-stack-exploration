@@ -1,42 +1,59 @@
-class CreatePokemon < Struct.new(:force)
-  JSON_HTTP = HTTP.headers(accept: "application/json")
-  POKEMON_COUNT = 151
+COMPANY_NAMES = %w(
+  Microsoft Apple Amazon Google Facebook Visa Walmart NVIDIA Salesforce Adobe Netflix Disney Intel
+  Coca-Cola AT&T Pepsi Toyota Nike Oracle McDonald's
+)
 
-  def call
-    return if skip_call?
-    pokemons_list = fetch_pokemons_list
-    pokemons_list.each do |pokemon_item|
-      pokemon_data = JSON_HTTP.get(pokemon_item["url"]).parse
-      create_pokemon_from_data(pokemon_data)
-    end
-  end
-
-  private
-
-  def skip_call?
-    force || (Pokemon.count >= POKEMON_COUNT)
-  end
-
-  def fetch_pokemons_list
-    JSON_HTTP.get("https://pokeapi.co/api/v2/pokemon?limit=#{POKEMON_COUNT}").parse["results"]
-  end
-
-  def create_pokemon_from_data(pokemon_data)
-    name = pokemon_data["name"]
-    number = pokemon_data["id"]
-    image_url = pokemon_data["sprites"]["front_default"]
-    puts "Creating pokemon #{number}/#{POKEMON_COUNT}: #{name}."
-    Pokemon.create_with(
-      number: number,
-      image_url: image_url
-    ).find_or_create_by(
-      name: name
-    )
-  end
+def random_future_day
+  rand(1..15).days.from_now
 end
 
-USERNAME = "ableuser"
+def random_past_day
+  rand(1..365).days.ago
+end
 
-User.create_with(password: "password").find_or_create_by(username: USERNAME)
-CreatePokemon.new(ENV["FORCE_POKEMON_CREATION"].present?).call
+def random_amount
+  rand(1400..7000)
+end
 
+def random_valuations_count
+  rand(1..30)
+end
+
+User.create!(username: "testuser", password: "password")
+
+COMPANY_NAMES.each do |name|
+  company = Company.find_or_create_by!(name: name)
+
+  investments_data = [
+    ["Debt 1", random_amount, "chore-less", random_future_day],
+    ["Debt 2", random_amount, nil, random_future_day],
+    ["Series A", random_amount, nil, nil],
+    ["Debt 3", random_amount, nil, random_future_day],
+    ["Series B", random_amount, "chore-less", nil],
+    ["Debt 4", random_amount, "chore-less", random_future_day]
+  ]
+
+  investments_data.each do |(name, invested, optional_field, expiration_date)|
+    investment = Investment.find_or_create_by!(
+      company_id: company.id,
+      name: name
+    )
+    investment.update!(
+      invested: invested,
+      optional_field: optional_field,
+      expiration_date: expiration_date
+    )
+
+    if investment.optional_field.nil?
+      investment.chores.create!(missing_field: "optional_field")
+    end
+
+    if investment.expiration_date.present?
+      investment.reminders.create!
+    end
+
+    random_valuations_count.times do
+      investment.valuations.create!(amount: random_amount, date: random_past_day)
+    end
+  end
+end
