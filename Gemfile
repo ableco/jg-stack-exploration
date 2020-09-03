@@ -12,6 +12,7 @@ gem 'bootsnap', '>= 1.4.2', require: false
 gem 'http'
 gem 'bcrypt'
 gem 'graphql'
+gem 'jsonapi-resources'
 
 group :development, :test do
   gem 'pry-rails'

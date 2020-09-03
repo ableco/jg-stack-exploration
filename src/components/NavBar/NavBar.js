@@ -2,20 +2,8 @@ import React, { forwardRef, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "components/Button";
 import AuthContext from "components/AuthContext";
-import { gql } from "lib/useGraphqlClient";
 
-const CHOSEN_POKEMONS_QUERY = gql`
-  {
-    chosenPokemons {
-      id
-      name
-      imageUrl
-      number
-    }
-  }
-`;
-
-function Navbar(_props, ref) {
+function NavBar(_props, ref) {
   const { logout } = useContext(AuthContext);
 
   const navigate = useNavigate();
@@ -37,5 +25,4 @@ function Navbar(_props, ref) {
   );
 }
 
-export default forwardRef(Navbar);
-export { CHOSEN_POKEMONS_QUERY };
+export default forwardRef(NavBar);
