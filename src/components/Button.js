@@ -18,7 +18,7 @@ function Button({
   return (
     <button
       className={clsx(
-        "p-2 focus:outline-none text-center",
+        "p-2 focus:outline-none text-center disabled:opacity-50",
         variantClasses[variant] || "",
         className
       )}

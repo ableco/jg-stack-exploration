@@ -1,4 +1,4 @@
-import React, { createElement } from "react";
+import React, { createElement, useMemo } from "react";
 import Section from "components/Section";
 import useSWR from "swr";
 import Title from "components/Title";
@@ -11,6 +11,14 @@ function TableCell({ children, as = "td" }) {
 function HomePage() {
   const { data: companies } = useSWR("/companies");
   const { data: investments } = useSWR("/investments");
+
+  const companyById = useMemo(() => {
+    const object = {};
+    companies.forEach((company) => {
+      object[company.id] = company;
+    });
+    return object;
+  }, [companies]);
 
   return (
     <>
@@ -30,6 +38,7 @@ function HomePage() {
           <thead>
             <tr>
               <TableCell as="th">Name</TableCell>
+              <TableCell as="th">Company</TableCell>
               <TableCell as="th">Invested</TableCell>
               <TableCell as="th">Expiration Date</TableCell>
               <TableCell as="th">Optional Field</TableCell>
@@ -37,9 +46,17 @@ function HomePage() {
           </thead>
           <tbody>
             {investments.map(
-              ({ id, name, invested, expirationDate, optionalField }) => (
+              ({
+                id,
+                companyId,
+                name,
+                invested,
+                expirationDate,
+                optionalField,
+              }) => (
                 <tr key={id}>
                   <TableCell>{name}</TableCell>
+                  <TableCell>{companyById[companyId].name}</TableCell>
                   <TableCell>{numbro(invested).formatCurrency()}</TableCell>
                   <TableCell>{expirationDate}</TableCell>
                   <TableCell>

@@ -9,6 +9,7 @@ import LoadingBox from "components/LoadingBox";
 // import useGraphqlClient from "lib/useGraphqlClient";
 import Background from "components/Background";
 import Navbar from "components/NavBar";
+import NewInvestmentPage from "pages/NewInvestmentPage";
 
 function AuthenticatedApp() {
   return (
@@ -17,6 +18,7 @@ function AuthenticatedApp() {
       <div style={{ height: "96px" }} />
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/new-investment" element={<NewInvestmentPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Background>

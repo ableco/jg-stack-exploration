@@ -7318,6 +7318,11 @@ react-dom@^16.13.1:
     prop-types "^15.6.2"
     scheduler "^0.19.1"
 
+react-hook-form@^6.7.1:
+  version "6.7.1"
+  resolved "https://registry.able.co/react-hook-form/-/react-hook-form-6.7.1.tgz#58f1ce3ba6b0f3cb05b665a4cc268d0623ea9e1a"
+  integrity sha512-0I6NUPxdCVWIAbDhhmChusikDD70uUN9mXwtF4qClne8ECwlfhWZ4CBLMyPKjS1B5SmPAVMDWH8zhA3jTpzz+Q==
+
 react-is@^16.8.1:
   version "16.13.1"
   resolved "https://registry.able.co/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
