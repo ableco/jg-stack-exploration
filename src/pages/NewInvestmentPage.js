@@ -2,12 +2,14 @@ import React from "react";
 import Section from "components/Section";
 import Title from "components/Title";
 import { useForm } from "react-hook-form";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import Button from "components/Button";
 import { useNavigate } from "react-router-dom";
 
 function NewInvestmentPage() {
-  const { data: companies } = useSWR("/companies");
+  const {
+    data: { companies },
+  } = useSWR("/companies");
   const { register, handleSubmit, formState } = useForm({
     mode: "onChange",
   });
@@ -27,6 +29,9 @@ function NewInvestmentPage() {
         },
       }),
     });
+    mutate("/chores?include=investment");
+    mutate("/reminders?include=investment");
+    mutate("/companies");
     navigate("/");
   };
 

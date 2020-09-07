@@ -1,3 +1,4 @@
 class CompanyResource < JSONAPI::Resource
-  attributes :name
+  # Valuation makes too many SQL requests
+  attributes :name, :valuation
 end

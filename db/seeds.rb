@@ -44,14 +44,6 @@ COMPANY_NAMES.each do |name|
       expiration_date: expiration_date
     )
 
-    if investment.optional_field.nil?
-      investment.chores.create!(missing_field: "optional_field")
-    end
-
-    if investment.expiration_date.present?
-      investment.reminders.create!
-    end
-
     random_valuations_count.times do
       investment.valuations.create!(amount: random_amount, date: random_past_day)
     end

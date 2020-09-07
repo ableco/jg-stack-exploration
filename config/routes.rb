@@ -5,6 +5,8 @@ Rails.application.routes.draw do
 
   jsonapi_resources :companies, only: [:show, :index]
   jsonapi_resources :investments, only: [:show, :index, :create]
+  jsonapi_resources :reminders, only: [:show, :index]
+  jsonapi_resources :chores, only: [:show, :index]
 
   # If the catch-all route catches an HTML route, redirect to the frontend application
   # instead of raising a RoutingError.

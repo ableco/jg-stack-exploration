@@ -9,8 +9,9 @@ function TableCell({ children, as = "td" }) {
 }
 
 function HomePage() {
-  const { data: companies } = useSWR("/companies");
-  const { data: investments } = useSWR("/investments");
+  const {
+    data: { investments, companies },
+  } = useSWR("/investments?include=company");
 
   const companyById = useMemo(() => {
     const object = {};
@@ -23,16 +24,6 @@ function HomePage() {
   return (
     <>
       <Section>
-        <Title>Companies</Title>
-        <ul className="flex flex-row flex-wrap mt-4">
-          {companies.map(({ id, name }) => (
-            <li key={id} className="p-2 bg-indigo-800 text-white mr-2">
-              {name}
-            </li>
-          ))}
-        </ul>
-      </Section>
-      <Section>
         <Title>Investments</Title>
         <table className="table-auto">
           <thead>
@@ -40,6 +31,7 @@ function HomePage() {
               <TableCell as="th">Name</TableCell>
               <TableCell as="th">Company</TableCell>
               <TableCell as="th">Invested</TableCell>
+              <TableCell as="th">Value</TableCell>
               <TableCell as="th">Expiration Date</TableCell>
               <TableCell as="th">Optional Field</TableCell>
             </tr>
@@ -51,6 +43,7 @@ function HomePage() {
                 companyId,
                 name,
                 invested,
+                value,
                 expirationDate,
                 optionalField,
               }) => (
@@ -58,6 +51,7 @@ function HomePage() {
                   <TableCell>{name}</TableCell>
                   <TableCell>{companyById[companyId].name}</TableCell>
                   <TableCell>{numbro(invested).formatCurrency()}</TableCell>
+                  <TableCell>{numbro(value).formatCurrency()}</TableCell>
                   <TableCell>{expirationDate}</TableCell>
                   <TableCell>
                     {optionalField ? (

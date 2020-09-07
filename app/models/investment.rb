@@ -10,7 +10,15 @@ class Investment < ApplicationRecord
   after_create :create_chore
   after_create :create_reminder
 
+  def value
+    latest_valuation.amount
+  end
+
   private
+
+  def latest_valuation
+    valuations.order(updated_at: :desc).first
+  end
 
   def create_initial_valuation
     if initial_valuation.present?

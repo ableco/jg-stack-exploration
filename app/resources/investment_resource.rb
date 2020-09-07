@@ -1,6 +1,8 @@
 class InvestmentResource < JSONAPI::Resource
   attributes  :name, :invested, :expiration_date, :optional_field, :company_id, :initial_valuation,
-              :updated_at
+              :updated_at, :value
+
+  belongs_to :company
 
   def self.default_sort
     [{ field: :updated_at, direction: :desc }]

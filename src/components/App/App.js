@@ -35,13 +35,19 @@ function UnauthenticatedApp() {
   );
 }
 
-function denormalize(jsonApiObject) {
-  if (Array.isArray(jsonApiObject)) {
-    return jsonApiObject.map((object) => denormalize(object));
-  } else {
-    const { id, type, attributes } = jsonApiObject;
-    return { id, type, ...attributes };
-  }
+function denormalizeItem(item) {
+  return { id: item.id, ...item.attributes };
+}
+
+function denormalize(items) {
+  const groups = {};
+
+  items.forEach((item) => {
+    groups[item.type] = groups[item.type] || [];
+    groups[item.type].push(denormalizeItem(item));
+  });
+
+  return groups;
 }
 
 const fetcher = async (url) => {
@@ -51,8 +57,8 @@ const fetcher = async (url) => {
       "Content-Type": "application/vnd.api+json",
     },
   });
-  const { data } = await response.json();
-  return denormalize(data);
+  const { data, included } = await response.json();
+  return denormalize([...data, ...(included || [])]);
 };
 
 function AuthApp() {
