@@ -1,4 +1,7 @@
 class CompanyResource < JSONAPI::Resource
-  # Valuation makes too many SQL requests
   attributes :name, :valuation
+
+  def self.records_for_populate(options = {})
+    super(options).includes(investments: :valuations)
+  end
 end

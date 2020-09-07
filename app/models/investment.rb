@@ -2,7 +2,11 @@ class Investment < ApplicationRecord
   belongs_to :company
   has_many :chores
   has_many :reminders
-  has_many :valuations
+
+  # `has_many` lambda blocks are loaded on eager loading time,
+  # so the loaded associations come in order. If we'd use order on `latest_valuation`,
+  # it would have bypassed the eager loaded associations data.
+  has_many :valuations, -> { order(updated_at: :desc) }
 
   attr_accessor :initial_valuation
 
@@ -17,7 +21,7 @@ class Investment < ApplicationRecord
   private
 
   def latest_valuation
-    valuations.order(updated_at: :desc).first
+    valuations.first
   end
 
   def create_initial_valuation
