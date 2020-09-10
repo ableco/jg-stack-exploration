@@ -46,22 +46,24 @@ function HomePage() {
                 value,
                 expirationDate,
                 optionalField,
-              }) => (
-                <tr key={id}>
-                  <TableCell>{name}</TableCell>
-                  <TableCell>{companyById[companyId].name}</TableCell>
-                  <TableCell>{numbro(invested).formatCurrency()}</TableCell>
-                  <TableCell>{numbro(value).formatCurrency()}</TableCell>
-                  <TableCell>{expirationDate}</TableCell>
-                  <TableCell>
-                    {optionalField ? (
-                      optionalField
-                    ) : (
-                      <span className="text-gray-400">none</span>
-                    )}
-                  </TableCell>
-                </tr>
-              )
+              }) => {
+                return (
+                  <tr key={id}>
+                    <TableCell>{name}</TableCell>
+                    <TableCell>{companyById[companyId].name}</TableCell>
+                    <TableCell>{numbro(invested).formatCurrency()}</TableCell>
+                    <TableCell>{numbro(value).formatCurrency()}</TableCell>
+                    <TableCell>{expirationDate}</TableCell>
+                    <TableCell>
+                      {optionalField ? (
+                        optionalField
+                      ) : (
+                        <span className="text-gray-400">none</span>
+                      )}
+                    </TableCell>
+                  </tr>
+                );
+              }
             )}
           </tbody>
         </table>

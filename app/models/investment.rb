@@ -1,27 +1,30 @@
 class Investment < ApplicationRecord
   belongs_to :company
+
   has_many :chores
   has_many :reminders
-
-  # `has_many` lambda blocks are loaded on eager loading time,
-  # so the loaded associations come in order. If we'd use order on `latest_valuation`,
-  # it would have bypassed the eager loaded associations data.
-  has_many :valuations, -> { order(updated_at: :desc) }
+  has_many :valuations
 
   attr_accessor :initial_valuation
 
   after_create :create_initial_valuation
   after_create :create_chore
-  after_create :create_reminder
 
-  def value
-    latest_valuation.amount
-  end
+  after_save :maybe_create_reminder
+  after_save :update_value
+
+  after_destroy :update_company_value
 
   private
 
-  def latest_valuation
-    valuations.first
+  def update_value
+    latest_valuation = valuations.order(updated_at: :desc).first
+    update_columns(value: latest_valuation&.amount || 0)
+    update_company_value
+  end
+
+  def update_company_value
+    company.recalculate_value
   end
 
   def create_initial_valuation
@@ -36,8 +39,8 @@ class Investment < ApplicationRecord
     end
   end
 
-  def create_reminder
-    if expiration_date.present?
+  def maybe_create_reminder
+    if expiration_date.present? && reminders.empty?
       reminders.create!
     end
   end

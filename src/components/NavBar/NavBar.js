@@ -71,7 +71,7 @@ function CompaniesWidget() {
       <div className="w-64 overflow-auto" style={{ maxHeight: "500px" }}>
         {companies.map((company) => (
           <div key={company.id}>
-            Valuation of {company.name} is {company.valuation}
+            Valuation of {company.name} is {company.value}
           </div>
         ))}
       </div>

@@ -1,9 +1,7 @@
 class Company < ApplicationRecord
   has_many :investments
 
-  def valuation
-    investments.sum do |investment|
-      investment.value
-    end
+  def recalculate_value
+    update(value: investments.sum(:value))
   end
 end

@@ -7,8 +7,4 @@ class InvestmentResource < JSONAPI::Resource
   def self.default_sort
     [{ field: :updated_at, direction: :desc }]
   end
-
-  def self.records_for_populate(options = {})
-    super(options).includes(:valuations)
-  end
 end
