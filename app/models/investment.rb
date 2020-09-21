@@ -15,6 +15,8 @@ class Investment < ApplicationRecord
 
   after_destroy :update_company_value
 
+  scope :most_recent_first, -> { order(updated_at: :desc) }
+
   private
 
   def update_value

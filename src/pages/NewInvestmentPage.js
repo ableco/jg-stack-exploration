@@ -5,33 +5,70 @@ import { useForm } from "react-hook-form";
 import useSWR, { mutate } from "swr";
 import Button from "components/Button";
 import { useNavigate } from "react-router-dom";
+import useGraphqlClient, { gql } from "lib/useGraphqlClient";
+import {
+  CHORES_QUERY,
+  NAVBAR_COMPANIES_QUERY,
+  REMINDERS_QUERY,
+} from "components/NavBar/NavBar";
+
+const COMPANIES_QUERY = gql`
+  {
+    companies {
+      id
+      name
+    }
+  }
+`;
+
+const CREATE_INVESTMENT_MUTATION = gql`
+  mutation(
+    $name: String!
+    $companyId: ID!
+    $invested: Float!
+    $initialValuation: Float!
+    $expirationDate: ISO8601Date
+    $optionalField: String
+  ) {
+    createInvestment(
+      input: {
+        name: $name
+        companyId: $companyId
+        invested: $invested
+        initialValuation: $initialValuation
+        expirationDate: $expirationDate
+        optionalField: $optionalField
+      }
+    ) {
+      investment {
+        id
+      }
+    }
+  }
+`;
 
 function NewInvestmentPage() {
   const {
     data: { companies },
-  } = useSWR("/companies");
+  } = useSWR(COMPANIES_QUERY);
+
   const { register, handleSubmit, formState } = useForm({
     mode: "onChange",
   });
+
   const navigate = useNavigate();
+  const graphqlClient = useGraphqlClient();
 
   const onSubmit = async (attributes) => {
-    await fetch("/investments", {
-      method: "POST",
-      headers: {
-        Accept: "application/vnd.api+json",
-        "Content-Type": "application/vnd.api+json",
-      },
-      body: JSON.stringify({
-        data: {
-          type: "investments",
-          attributes,
-        },
-      }),
+    await graphqlClient.request(CREATE_INVESTMENT_MUTATION, {
+      ...attributes,
+      invested: Number(attributes.invested),
+      initialValuation: Number(attributes.initialValuation),
+      expirationDate: attributes.expirationDate || null,
     });
-    mutate("/chores?include=investment");
-    mutate("/reminders?include=investment");
-    mutate("/companies");
+    mutate(CHORES_QUERY);
+    mutate(REMINDERS_QUERY);
+    mutate(NAVBAR_COMPANIES_QUERY);
     navigate("/");
   };
 

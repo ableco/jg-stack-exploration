@@ -1,25 +1,34 @@
-import React, { createElement, useMemo } from "react";
+import React, { createElement } from "react";
 import Section from "components/Section";
 import useSWR from "swr";
 import Title from "components/Title";
 import numbro from "numbro";
+import { gql } from "lib/useGraphqlClient";
 
 function TableCell({ children, as = "td" }) {
   return createElement(as, { className: "p-2", children });
 }
 
+const INVESTMENTS_QUERY = gql`
+  {
+    investments {
+      id
+      name
+      invested
+      value
+      expirationDate
+      optionalField
+      company {
+        name
+      }
+    }
+  }
+`;
+
 function HomePage() {
   const {
-    data: { investments, companies },
-  } = useSWR("/investments?include=company");
-
-  const companyById = useMemo(() => {
-    const object = {};
-    companies.forEach((company) => {
-      object[company.id] = company;
-    });
-    return object;
-  }, [companies]);
+    data: { investments },
+  } = useSWR(INVESTMENTS_QUERY);
 
   return (
     <>
@@ -40,8 +49,8 @@ function HomePage() {
             {investments.map(
               ({
                 id,
-                companyId,
                 name,
+                company,
                 invested,
                 value,
                 expirationDate,
@@ -50,7 +59,7 @@ function HomePage() {
                 return (
                   <tr key={id}>
                     <TableCell>{name}</TableCell>
-                    <TableCell>{companyById[companyId].name}</TableCell>
+                    <TableCell>{company.name}</TableCell>
                     <TableCell>{numbro(invested).formatCurrency()}</TableCell>
                     <TableCell>{numbro(value).formatCurrency()}</TableCell>
                     <TableCell>{expirationDate}</TableCell>

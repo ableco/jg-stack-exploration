@@ -1,4 +1,4 @@
-import React, { useContext, Suspense } from "react";
+import React, { useContext, Suspense, useCallback } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import LoginPage from "pages/LoginPage";
 import HomePage from "pages/HomePage";
@@ -6,7 +6,7 @@ import AuthContext, { AuthContextProvider } from "components/AuthContext";
 import NotFoundPage from "pages/NotFoundPage";
 import { SWRConfig } from "swr";
 import LoadingBox from "components/LoadingBox";
-// import useGraphqlClient from "lib/useGraphqlClient";
+import useGraphqlClient from "lib/useGraphqlClient";
 import Background from "components/Background";
 import Navbar from "components/NavBar";
 import NewInvestmentPage from "pages/NewInvestmentPage";
@@ -35,39 +35,13 @@ function UnauthenticatedApp() {
   );
 }
 
-function denormalizeItem(item) {
-  return { id: item.id, ...item.attributes };
-}
-
-function denormalize(items) {
-  const groups = {};
-
-  items.forEach((item) => {
-    groups[item.type] = groups[item.type] || [];
-    groups[item.type].push(denormalizeItem(item));
-  });
-
-  return groups;
-}
-
-const fetcher = async (url) => {
-  const response = await fetch(url, {
-    headers: {
-      Accept: "application/vnd.api+json",
-      "Content-Type": "application/vnd.api+json",
-    },
-  });
-  const { data, included } = await response.json();
-  return denormalize([...data, ...(included || [])]);
-};
-
 function AuthApp() {
   const { currentUser } = useContext(AuthContext);
 
-  // const graphqlClient = useGraphqlClient();
-  // const fetcher = useCallback((...args) => graphqlClient.request(...args), [
-  //   graphqlClient,
-  // ]);
+  const graphqlClient = useGraphqlClient();
+  const fetcher = useCallback((...args) => graphqlClient.request(...args), [
+    graphqlClient,
+  ]);
 
   return (
     <SWRConfig value={{ suspense: true, fetcher }}>

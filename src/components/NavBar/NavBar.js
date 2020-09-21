@@ -1,49 +1,55 @@
-import React, { forwardRef, useContext, useMemo } from "react";
+import React, { forwardRef, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Button from "components/Button";
 import AuthContext from "components/AuthContext";
 import Dropdown from "components/Dropdown";
 import useSWR from "swr";
+import { gql } from "lib/useGraphqlClient";
+
+const CHORES_QUERY = gql`
+  {
+    chores {
+      id
+      investment {
+        name
+      }
+    }
+  }
+`;
 
 function ChoresWidget() {
   const {
-    data: { chores, investments },
-  } = useSWR("/chores?include=investment");
-
-  const investmentById = useMemo(() => {
-    const object = {};
-    investments.forEach((investment) => {
-      object[investment.id] = investment;
-    });
-    return object;
-  }, [investments]);
+    data: { chores },
+  } = useSWR(CHORES_QUERY);
 
   return (
     <Dropdown title={<>Chores ({chores.length})</>}>
       {chores.length === 0 && <span>No chores</span>}
       <div className="w-64 overflow-auto" style={{ maxHeight: "500px" }}>
         {chores.map((chore) => (
-          <div key={chore.id}>
-            Missing field on {investmentById[chore.investmentId].name}
-          </div>
+          <div key={chore.id}>Missing field on {chore.investment.name}</div>
         ))}
       </div>
     </Dropdown>
   );
 }
 
+const REMINDERS_QUERY = gql`
+  {
+    reminders {
+      id
+      investment {
+        name
+        expirationDate
+      }
+    }
+  }
+`;
+
 function RemindersWidget() {
   const {
-    data: { reminders, investments },
-  } = useSWR("/reminders?include=investment");
-
-  const investmentById = useMemo(() => {
-    const object = {};
-    investments.forEach((investment) => {
-      object[investment.id] = investment;
-    });
-    return object;
-  }, [investments]);
+    data: { reminders },
+  } = useSWR(REMINDERS_QUERY);
 
   return (
     <Dropdown title={<>Reminders ({reminders.length})</>}>
@@ -51,8 +57,8 @@ function RemindersWidget() {
       <div className="w-64 overflow-auto" style={{ maxHeight: "500px" }}>
         {reminders.map((reminder) => (
           <div key={reminder.id}>
-            {investmentById[reminder.investmentId].name} will expire at{" "}
-            {investmentById[reminder.investmentId].expirationDate}.
+            {reminder.investment.name} will expire at{" "}
+            {reminder.investment.expirationDate}.
           </div>
         ))}
       </div>
@@ -60,10 +66,20 @@ function RemindersWidget() {
   );
 }
 
+const NAVBAR_COMPANIES_QUERY = gql`
+  {
+    companies {
+      id
+      name
+      value
+    }
+  }
+`;
+
 function CompaniesWidget() {
   const {
     data: { companies },
-  } = useSWR("/companies");
+  } = useSWR(NAVBAR_COMPANIES_QUERY);
 
   return (
     <Dropdown title="Companies">
@@ -117,3 +133,4 @@ function NavBar(_props, ref) {
 }
 
 export default forwardRef(NavBar);
+export { CHORES_QUERY, REMINDERS_QUERY, NAVBAR_COMPANIES_QUERY };
