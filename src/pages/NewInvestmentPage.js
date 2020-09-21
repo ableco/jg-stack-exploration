@@ -6,11 +6,7 @@ import useSWR, { mutate } from "swr";
 import Button from "components/Button";
 import { useNavigate } from "react-router-dom";
 import useGraphqlClient, { gql } from "lib/useGraphqlClient";
-import {
-  CHORES_QUERY,
-  NAVBAR_COMPANIES_QUERY,
-  REMINDERS_QUERY,
-} from "components/NavBar/NavBar";
+import { NAVBAR_QUERY } from "components/NavBar/NavBar";
 
 const COMPANIES_QUERY = gql`
   {
@@ -66,9 +62,7 @@ function NewInvestmentPage() {
       initialValuation: Number(attributes.initialValuation),
       expirationDate: attributes.expirationDate || null,
     });
-    mutate(CHORES_QUERY);
-    mutate(REMINDERS_QUERY);
-    mutate(NAVBAR_COMPANIES_QUERY);
+    mutate(NAVBAR_QUERY);
     navigate("/");
   };
 

@@ -6,22 +6,34 @@ import Dropdown from "components/Dropdown";
 import useSWR from "swr";
 import { gql } from "lib/useGraphqlClient";
 
-const CHORES_QUERY = gql`
+const NAVBAR_QUERY = gql`
   {
     chores {
       id
       investment {
+        id
         name
       }
+    }
+
+    reminders {
+      id
+      investment {
+        id
+        name
+        expirationDate
+      }
+    }
+
+    companies {
+      id
+      name
+      value
     }
   }
 `;
 
-function ChoresWidget() {
-  const {
-    data: { chores },
-  } = useSWR(CHORES_QUERY);
-
+function ChoresWidget({ chores }) {
   return (
     <Dropdown title={<>Chores ({chores.length})</>}>
       {chores.length === 0 && <span>No chores</span>}
@@ -34,23 +46,7 @@ function ChoresWidget() {
   );
 }
 
-const REMINDERS_QUERY = gql`
-  {
-    reminders {
-      id
-      investment {
-        name
-        expirationDate
-      }
-    }
-  }
-`;
-
-function RemindersWidget() {
-  const {
-    data: { reminders },
-  } = useSWR(REMINDERS_QUERY);
-
+function RemindersWidget({ reminders }) {
   return (
     <Dropdown title={<>Reminders ({reminders.length})</>}>
       {reminders.length === 0 && <span>No reminders</span>}
@@ -66,21 +62,7 @@ function RemindersWidget() {
   );
 }
 
-const NAVBAR_COMPANIES_QUERY = gql`
-  {
-    companies {
-      id
-      name
-      value
-    }
-  }
-`;
-
-function CompaniesWidget() {
-  const {
-    data: { companies },
-  } = useSWR(NAVBAR_COMPANIES_QUERY);
-
+function CompaniesWidget({ companies }) {
   return (
     <Dropdown title="Companies">
       {companies.length === 0 && <span>No companies</span>}
@@ -99,6 +81,10 @@ function NavBar(_props, ref) {
   const { logout } = useContext(AuthContext);
 
   const navigate = useNavigate();
+
+  const {
+    data: { companies, chores, reminders },
+  } = useSWR(NAVBAR_QUERY);
 
   const handleLogout = async () => {
     await logout();
@@ -120,9 +106,9 @@ function NavBar(_props, ref) {
           </Link>
         </div>
         <div className="flex items-center ml-auto">
-          <ChoresWidget />
-          <RemindersWidget />
-          <CompaniesWidget />
+          <ChoresWidget chores={chores} />
+          <RemindersWidget reminders={reminders} />
+          <CompaniesWidget companies={companies} />
           <Button variant="secondary" onClick={handleLogout} className="ml-16">
             Logout
           </Button>
@@ -133,4 +119,4 @@ function NavBar(_props, ref) {
 }
 
 export default forwardRef(NavBar);
-export { CHORES_QUERY, REMINDERS_QUERY, NAVBAR_COMPANIES_QUERY };
+export { NAVBAR_QUERY };
