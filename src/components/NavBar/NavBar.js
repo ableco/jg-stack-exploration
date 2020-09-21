@@ -8,27 +8,29 @@ import { gql } from "lib/useGraphqlClient";
 
 const NAVBAR_QUERY = gql`
   {
-    chores {
-      id
-      investment {
+    navbar {
+      chores {
+        id
+        investment {
+          id
+          name
+        }
+      }
+
+      reminders {
+        id
+        investment {
+          id
+          name
+          expirationDate
+        }
+      }
+
+      companies {
         id
         name
+        value
       }
-    }
-
-    reminders {
-      id
-      investment {
-        id
-        name
-        expirationDate
-      }
-    }
-
-    companies {
-      id
-      name
-      value
     }
   }
 `;
@@ -83,7 +85,9 @@ function NavBar(_props, ref) {
   const navigate = useNavigate();
 
   const {
-    data: { companies, chores, reminders },
+    data: {
+      navbar: { companies, chores, reminders },
+    },
   } = useSWR(NAVBAR_QUERY);
 
   const handleLogout = async () => {
