@@ -8,5 +8,11 @@ module Types
     field :value, Float, null: true
 
     field :company, Types::CompanyType, null: false
+
+    def company
+      BatchLoader::GraphQL.for(object.company_id).batch do |company_ids, loader|
+        Company.where(id: company_ids).each { |company| loader.call(company.id, company) }
+      end
+    end
   end
 end

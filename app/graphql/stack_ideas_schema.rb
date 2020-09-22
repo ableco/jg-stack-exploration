@@ -8,4 +8,7 @@ class StackIdeasSchema < GraphQL::Schema
 
   # Add built-in connections for pagination
   use GraphQL::Pagination::Connections
+
+  # Use batch loader within GraphQL query context
+  use BatchLoader::GraphQL
 end

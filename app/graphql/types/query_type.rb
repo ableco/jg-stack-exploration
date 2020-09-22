@@ -14,14 +14,14 @@ module Types
     end
 
     def investments
-      Investment.most_recent_first.includes(:company)
+      Investment.most_recent_first
     end
 
     def navbar
       {
         companies: companies,
-        chores: chores.includes(:investment),
-        reminders: reminders.includes(:investment)
+        chores: chores,
+        reminders: reminders
       }
     end
 

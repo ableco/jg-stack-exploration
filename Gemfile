@@ -13,6 +13,7 @@ gem 'http'
 gem 'bcrypt'
 gem 'graphql'
 gem 'jsonapi-resources'
+gem 'batch-loader'
 
 group :development, :test do
   gem 'pry-rails'
