@@ -1,5 +1,7 @@
 # Stack Exploration
 
+## Some Results
+
 ### 1. Using JSON:API without N + 1 query management
 
 https://github.com/ableco/jg-stack-exploration/commit/42d7ce7050d4cb092ed7b6562e190430487edd70
@@ -74,6 +76,18 @@ It's the same link as before: https://github.com/ableco/jg-stack-exploration/com
 
 | Query         | Time      | Allocations |
 | ------------- | --------- | ----------- |
-| `nav bar`     | 84ms      | 39961       |
-| `investments` | 60ms      | 27682       |
+| `nav bar`     | 84ms      | 39,961      |
+| `investments` | 60ms      | 27,682      |
 | Total:        | **144ms** | **67,643**  |
+
+### 8. Using Graphql with Batch Loader gem
+
+https://github.com/ableco/jg-stack-exploration/commit/7e4ab99ff03dc3085d8a5b53dca2b2b918cfd7a2
+
+This is the library used in this commit: https://github.com/exAspArk/batch-loader#graphql-example.
+
+| Query         | Time      | Allocations |
+| ------------- | --------- | ----------- |
+| `nav bar`     | 70ms      | 34,353      |
+| `investments` | 77ms      | 28,369      |
+| Total:        | **147ms** | **62,722**  |
