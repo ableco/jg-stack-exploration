@@ -144,38 +144,63 @@ and `/companies` something like this:
 
 and so on. It's also _just a coincidence_ that every component here is associated with only one resource: `RemindersList` to `/reminders`, `ChoresMenu` to `/chores` and `CompaniesList` to `/chores`, to show some examples. Reality can be, and usually is, more complicated than this. A component may need multiple resources, and the amount of mutations can increase a lot, as we saw happened on Mighty.
 
-So maybe the problem _is_ that we respect these resources too much. In this case, these 3 components are actually part of a navigation bar. What if we have one single query for all the navigation bar? For example, in an RPC style:
+So maybe the problem is that we *respect* these resources too much. In this case, these 3 components are actually part of a navigation bar. What if we have one single query for all the navigation bar? For example, let's see this response:
 
 ```json
+// GET /navbar
 {
-  "operation": "getNavbar",
-  "data": {
-    "reminders": [
-      {
-        "id": 1,
-        "investmentId": "1",
-        "investmentName": "Investment 1",
-        "expiration": "..."
-      }
-    ],
-    "chores": [{ "id": 1, "investmentId": "1" }],
-    "companies": [{ "id": 1, "name": "Coca-Cola", "totalValuation": 1000 }]
-  }
+  "reminders": [
+    {
+      "id": 1,
+      "investmentId": "1",
+      "investmentName": "Investment 1",
+      "expiration": "..."
+    }
+  ],
+  "chores": [{ "id": 1, "investmentId": "1" }],
+  "companies": [{ "id": 1, "name": "Coca-Cola", "totalValuation": 1000 }]
 }
 ```
 
-The code to get this data can be _optimized_ as a whole. There's no need to load investments 3 times or to authenticate the curent user 3 times. We just load it once and that's it. You may argue that this tightly couples the backend and the frontend, and that an hypotetical client that doesn't have a navbar will suffer with this, and that's correct. The thing is that we don't need our APIs to be as abstract if they're only going to be used to build applications and not platforms, which are entire different beasts.
+In this case, the route handler for `/navbar` has all the context it needs to make optimizations. It can minimize the amount of SQL queries it does and use the abstractions required to make this fast. In this sense, there's no real need to load investments or to authenticate the current user 3 times in order to load a piece of UI. I have used a similar solution to this while keeping the code RESTful in the past by having a resource named like the view (e.g.  `navbar`) but in the end it's the same solution: Having a single request to manage a single view.
 
-## Enter GraphQL
+Now, playing as the devil's advocate, this approach effectively couples the backend and the frontend, and so it requires more work to support a different type of client (e.g. having N endpoints: `/web/navbar`, `/android/navbar` and `/ios/navbar`). In fact, it would require one extra endpoint for every different type of client our API may have. Fortunately for us, we're not building plattforms that should support a variable amount of unknown and disparate clients that we can't control. We're building applications.
 
-To be honest, I don't really like raw RPC calls. They lack good tooling, an organized way of work, and type consistency (_unless_ we build all of that, which seems like a complex thing to do). In the last couple of months, I've been exploring and playing with GraphQL, and I can happily say that I like it a lot:
+## Looking for of a better API standard
 
-- Their tooling - based on introspection of the graph - is really cool. There are many clients and editor integrations out there.
-- The [Graphql gem](https://graphql-ruby.org) is very solid and has great documentation. It's far more mature than the most popular JSON:API gems.
-- The ecosystem of frontend integrations with Graphql is also in a pretty good state.
+If we start from this premise: **a better approach to building API-backed application UIs is to have a direct correlation between the needs of a single view and a backend response**, we can start evaluating JSON:API in this regard. For example, here are some things it does that don't get along that well with our basic premise:
 
-In order to compare the difference in approaches between JSON:API and Graphql, I also built a proof of concept using exploring many variations of the backend stack, comparing them and showing how fast they can be. You can took at the results [here](https://github.com/ableco/jg-stack-exploration).
+- JSON:API main building block is the resource, which is often coupled with database records. It's possible to think of a view as a singleton resource, but by doing so we have to *intentionally* ignore all the tools they have around database records.
+- JSON:API support for links (which is an implementation of https://en.wikipedia.org/wiki/HATEOAS) follows the assumption that the client should be able to generate whatever data it needs by following links and merging responses.
+- JSON:API requires a normalization phase to translate a response into what a view really needs. This is a tiny impedance mismatch, and it can be fixed most of the time by using a library that translates the data into what a view needs. Sadly, sometimes this is not always doable, such as when a view needs to show a UI table that's not directly correlated to a database one.
+
+It also has some PROs that I think we should try to preserve:
+
+- JSON:API response entities tend to have consistent types. Different views can return data of the same type. The `/companies` and `/company/:id` endpoint will in most cases will always return `company` with a  `name`. If taken carelessly, an approach with two endpoints for both views may name both `name` attributes differently.
+- JSON:API naming conventions mean that there's no need to translate from underscore case to camel case. This also means that, by knowing about `GET /companies`, we can assume `POST /companies` create a company without having to check somem documentation.
+
+So with these PROs and CONs in mind, I immediately discarded the option to build our own solution because I feel that it could end up in more trouble than anything, and  I started thinking about [JSON-RPC](https://www.jsonrpc.org/specification) and [Graphql](https://graphql.org) as possible alternatives. After some time reading and building small proof of concept projects, I found that JSON-RPC was way too simple, and it lacked many of the good things about JSON:API, mostly discoverability and type consistency.
+
+Graphql, in the other hand, although weird at first, started to make sense the more I looked into it. For those who don't know, the idea of Graphql is to have a query language that asks a server about some specific parts of a a bigger graph that consists on the entire application. For example, `{ companies: { name } }` asks for the `companies` query and for the `name` property inside of it. You can also ask for more parts of the graph and it all would come together in a single request from the server. There's a lot more to say about the Graphql approach (and I heavily suggest anyone to read [this page](https://graphql.org/learn/) about it), but in general I found that it plays well with the basic premise:
+
+- You can build queries and mutations that are **not** database models, just as easy as it is with records. Creating a `navbar` query is not a hackish solution but part of what Graphql says you can do.
+
+- The Graphql ruby gem is built around the concept of types (model types and types that can come from whatever process needs it), and so it's very difficult to break the type consistency we create.
+- Graphql *is very discoverable*. In fact, there are many tools that can introspect your graphql schema even on the text editor. There are many tools to choose from, and it's an entirely different experience compared to the only-discoverable-by-convention approach of JSON:API.
+
+Aside from the points above, the [Graphql gem](https://graphql-ruby.org/) is a very solid library. It has very good documentation, a strong sense of not breaking changes, and in my experience, it just works as it says it does. That's why I wanted to test it further.
+
+After these initial impressions, I noticed I needed to see how it could work against the case I exposed at the start of this post, to see if it could perform well against a similar UI. I built this proof of concept repository: https://github.com/ableco/jg-stack-exploration. The approach I took was the following:
+
+1. First, I built the UI in the most naive and unoptimized way I could while using JSON:API.
+2. I refactored the code to use eager loading and denormalizations.
+3. Then, I added Graphql, and reimplemented it without further optimizations.
+4. I tried consolidating the queries to try to make it as fast as possible. I discovered this really interesting [gem](https://github.com/exAspArk/batch-loader) in the process.
+5. I made a measure of the performance of every commit, and posted it in the README.
+
+I strongly suggest you to take a look at the [repository README](https://github.com/ableco/jg-stack-exploration/blob/master/README.md) to see how things went in every case. In general I was pretty much satisfied with the final solution, although it can be improved with some abstractions. Something important to note about it is that, without optimizations, Graphql is not faster than JSON:API. It's still very important to have a performance-oriented mentality when building complex views, as there's no silver bullet.
 
 ## Conclusion
 
-The Overpass solution was a solution guided by the current state of Redux and data normalization that we had in 2017, focused on solving backend problems from the client side in a way that avoids calling the API. I believed an approach that called the API a lot could only end in very bad performance issues, but I now think those concerns were not quite correct. It's far more likely that the problems were in our backends all along, and so I think we should change our focus to there, to how to make APIs that are fast, reliable and easy to consume.
+The Overpass solution was a solution guided by the current state of Redux and data normalization that we had in 2017, focused on solving backend problems from the client side in a way that avoided calling the API. I believed an approach that called the API a lot could only end in very bad performance issues, but I now think those concerns were not quite correct. After all the story I just told here, I feel It's far more likely that the problems were in our backends all along, and so I think we should change our focus to there, to how to make APIs that are fast, reliable and easy to consume for our current applications.
+
