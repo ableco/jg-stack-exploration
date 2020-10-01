@@ -162,7 +162,7 @@ So maybe the problem is that we *respect* these resources too much. In this case
 }
 ```
 
-In this case, the route handler for `/navbar` has all the context it needs to make optimizations. It can minimize the amount of SQL queries it does and use the abstractions required to make this fast. In this sense, there's no real need to load investments or to authenticate the curent user 3 times in order to load a piece of UI. I have used a similar solution to this while keeping the code RESTful in the past by having a resource named like the view (e.g.  `navbar`) but in the end it's the same solution: Having a single request to manage a single view.
+In this case, the route handler for `/navbar` has all the context it needs to make optimizations. It can minimize the amount of SQL queries it does and use the abstractions required to make this fast. In this sense, there's no real need to load investments or to authenticate the current user 3 times in order to load a piece of UI. I have used a similar solution to this while keeping the code RESTful in the past by having a resource named like the view (e.g.  `navbar`) but in the end it's the same solution: Having a single request to manage a single view.
 
 Now, playing as the devil's advocate, this approach effectively couples the backend and the frontend, and so it requires more work to support a different type of client (e.g. having N endpoints: `/web/navbar`, `/android/navbar` and `/ios/navbar`). In fact, it would require one extra endpoint for every different type of client our API may have. Fortunately for us, we're not building plattforms that should support a variable amount of unknown and disparate clients that we can't control. We're building applications.
 
@@ -186,7 +186,7 @@ Graphql, in the other hand, although weird at first, started to make sense the m
 - You can build queries and mutations that are **not** database models, just as easy as it is with records. Creating a `navbar` query is not a hackish solution but part of what Graphql says you can do.
 
 - The Graphql ruby gem is built around the concept of types (model types and types that can come from whatever process needs it), and so it's very difficult to break the type consistency we create.
-- Graphql *is very discoverable*. In fact, there are many tools that can instrospect your graphql schema even on the text editor. There are many tools to choose from, and it's an entirely different experience compared to the only-discoverable-by-convention approach of JSON:API.
+- Graphql *is very discoverable*. In fact, there are many tools that can introspect your graphql schema even on the text editor. There are many tools to choose from, and it's an entirely different experience compared to the only-discoverable-by-convention approach of JSON:API.
 
 Aside from the points above, the [Graphql gem](https://graphql-ruby.org/) is a very solid library. It has very good documentation, a strong sense of not breaking changes, and in my experience, it just works as it says it does. That's why I wanted to test it further.
 
@@ -198,8 +198,9 @@ After these initial impressions, I noticed I needed to see how it could work aga
 4. I tried consolidating the queries to try to make it as fast as possible. I discovered this really interesting [gem](https://github.com/exAspArk/batch-loader) in the process.
 5. I made a measure of the performance of every commit, and posted it in the README.
 
-I strongly suggest you to take a look at the [respository README](https://github.com/ableco/jg-stack-exploration/blob/master/README.md) to see how things went in every case. In general I was pretty much satisfied with the final solution, although it can be improved with some abstractions. Something important to note about it is that, without optimizations, Graphql is not faster than JSON:API. It's still very important to have a performance-oriented mentality when building complex views, as there's no silver bullet.
+I strongly suggest you to take a look at the [repository README](https://github.com/ableco/jg-stack-exploration/blob/master/README.md) to see how things went in every case. In general I was pretty much satisfied with the final solution, although it can be improved with some abstractions. Something important to note about it is that, without optimizations, Graphql is not faster than JSON:API. It's still very important to have a performance-oriented mentality when building complex views, as there's no silver bullet.
 
 ## Conclusion
 
 The Overpass solution was a solution guided by the current state of Redux and data normalization that we had in 2017, focused on solving backend problems from the client side in a way that avoided calling the API. I believed an approach that called the API a lot could only end in very bad performance issues, but I now think those concerns were not quite correct. After all the story I just told here, I feel It's far more likely that the problems were in our backends all along, and so I think we should change our focus to there, to how to make APIs that are fast, reliable and easy to consume for our current applications.
+
