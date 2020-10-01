@@ -1,5 +1,9 @@
 # Stack Exploration
 
+### Performance Notes
+
+The performance (time and allocation) results came from the Rails development log running on a [2018 Macbook Pro](https://support.apple.com/kb/SP776?locale=en_US). These numbers are the average of 3 runs excluding the initial request after a commit checkout (because that request takes a lot of time loading the new code).  With this in mind, they don't represent the values of an application running on production or under stress. However, as all the approaches were tested under the same hardware and environment conditions, the proportions between them still stand as useful when making comparisons.
+
 ## Some Results
 
 ### 1. Using JSON:API without N + 1 query management
