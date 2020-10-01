@@ -128,8 +128,8 @@ Also, I believe part of why this approach can be slow is because our APIs are _t
 
 ```json
 [
-  { id: 1, investment: { id: 1, name: "Investment 1", expiration: ... } },
-  { id: 2, investment: { id: 3, name: "Investment 2", expiration: ... } },
+  { "id": 1, "investment": { "id": 1, "name": "Investment 1", "expiration": "..." } },
+  { "id": 2, "investment": { "id": 3, "name": "Investment 2", "expiration": "..." } },
 ]
 ```
 
